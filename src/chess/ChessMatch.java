@@ -33,7 +33,7 @@ public class ChessMatch {
 		Piece capturedPiece = makeMove(source, target);
 
 	private void validateSourcePosition(Position position) {
-		if (!board.thereIsAPiece(position)) {
+		if (!board.thereIsPiece(position)) {
 			throw new ChessException("There is no piece on source position");
 		}
 		if (currentPlayer != ((ChessPiece) board.piece(position)).getColor()) {
