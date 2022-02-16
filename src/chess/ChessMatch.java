@@ -2,6 +2,7 @@ package chess;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import boardgame.Board;
 import boardgame.Piece;
@@ -61,6 +62,7 @@ public class ChessMatch {
 		validateSourcePosition(source);
 		validateTargetPosition(source, target);
 		Piece capturedPiece = makeMove(source, target);
+		return (ChessPiece)capturedPiece;
 	}
 	
 	private void validateSourcePosition(Position position) {
@@ -93,9 +95,68 @@ public class ChessMatch {
 			capturedPieces.add(capturedPiece);}
 		}
 	
+	private Color opponent(Color color) {
+		return (color == Color.WHITE) ? Color.BLACK : Color.WHITE;
+	}
+	
+	private ChessPiece king(Color color) {
+		List<Piece> list = piecesOnTheBoard.stream().filter(x -> ((ChessPiece)x).getColor() == color).collect(Collectors.toList());
+		for (Piece p : list) {
+			if (p instanceof King) {
+				return (ChessPiece)p;
+			}
+		}
+		throw new IllegalStateException("There is no " + color + " king on the board");
+	}
+
 		private void placeNewPiece(char column, int row, ChessPiece piece) {
 			board.placePiece(piece, new ChessPosition(column, row).toPosition());
 			piecesOnTheBoard.add(piece);
+		}
+		
+		private void undoMove(Position source, Position target, Piece capturedPiece) {
+			ChessPiece p = (ChessPiece)board.removePiece(target);
+			p.decreaseMoveCount();
+			board.placePiece(p, source);
+			
+			if (capturedPiece != null) {
+				board.placePiece(capturedPiece, target);
+				capturedPieces.remove(capturedPiece);
+				piecesOnTheBoard.add(capturedPiece);
+			}
+
+			// #specialmove castling kingside rook
+			if (p instanceof King && target.getColumn() == source.getColumn() + 2) {
+				Position sourceT = new Position(source.getRow(), source.getColumn() + 3);
+				Position targetT = new Position(source.getRow(), source.getColumn() + 1);
+				ChessPiece rook = (ChessPiece)board.removePiece(targetT);
+				board.placePiece(rook, sourceT);
+				rook.decreaseMoveCount();
+			}
+
+			// #specialmove castling queenside rook
+			if (p instanceof King && target.getColumn() == source.getColumn() - 2) {
+				Position sourceT = new Position(source.getRow(), source.getColumn() - 4);
+				Position targetT = new Position(source.getRow(), source.getColumn() - 1);
+				ChessPiece rook = (ChessPiece)board.removePiece(targetT);
+				board.placePiece(rook, sourceT);
+				rook.decreaseMoveCount();
+			}
+			
+			// #specialmove en passant
+			if (p instanceof Pawn) {
+				if (source.getColumn() != target.getColumn() && capturedPiece == enPassantVulnerable) {
+					ChessPiece pawn = (ChessPiece)board.removePiece(target);
+					Position pawnPosition;
+					if (p.getColor() == Color.WHITE) {
+						pawnPosition = new Position(3, target.getColumn());
+					}
+					else {
+						pawnPosition = new Position(4, target.getColumn());
+					}
+					board.placePiece(pawn, pawnPosition);
+				}
+			}
 		}
 
 	private void initialSetup() {
