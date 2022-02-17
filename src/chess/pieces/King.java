@@ -7,13 +7,7 @@ import chess.Color;
 
 public class King extends ChessPiece {
 	
-	private int turn;
-	private Color currentPlayer;
-	private Board board;
-	private boolean check;
-	private boolean checkMate;
-	private ChessPiece enPassantVulnerable;
-	private ChessPiece promoted;
+
 
 	public King(Board board, Color color) {
 		super(board, color);
@@ -94,8 +88,5 @@ public class King extends ChessPiece {
 		return null;
 	}
 
-	private void nextTurn() {
-		turn++;
-		currentPlayer = (currentPlayer == Color.WHITE) ? Color.BLACK : Color.WHITE;
-	}
+
 }
