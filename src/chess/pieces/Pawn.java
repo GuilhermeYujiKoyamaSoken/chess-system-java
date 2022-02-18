@@ -53,7 +53,7 @@ boolean[][] mat = new boolean[getBoard().getRows()][getBoard().getColumns()];
 		}
 		else {
 			p.setValues(position.getRow() + 1, position.getColumn());
-			if (getBoard().positionExists(p) && !getBoard().thereIsAPiece(p)) {
+			if (getBoard().positionExists(p) && !getBoard().thereIsPiece(p)) {
 				mat[p.getRow()][p.getColumn()] = true;
 			}
 			p.setValues(position.getRow() + 2, position.getColumn());
@@ -83,4 +83,9 @@ boolean[][] mat = new boolean[getBoard().getRows()][getBoard().getColumns()];
 			}			
 		}
 		return mat;
+}
+	@Override
+	public String toString() {
+		return "P";
+}
 }
